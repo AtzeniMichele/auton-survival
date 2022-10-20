@@ -1,0 +1,25 @@
+[project]
+name = "auton_survival"
+version = "1.0.0"
+description = "the auton-survival package"
+license = {file = "LICENSE"}
+readme = "README.md"
+dependencies = [
+    "torch>=1.0.0",
+    "numpy>=1.16.5",
+    "pandas>=1.0.0",
+    "tqdm>=4.0.0",
+    "scikit-learn>=0.18",
+    "torchvision>=0.7.0",
+    "scikit-survival>=0.15.0",
+    "lifelines>=0.26.4",
+]
+
+[build-system]
+requires = [
+    "setuptools",
+    "wheel",
+]
+
+[tool.setuptools]
+packages = ["auton_survival"]
