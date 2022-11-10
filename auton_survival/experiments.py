@@ -168,18 +168,21 @@ class SurvivalRegressionCV:
                                            predictions=predictions,
                                            times=horizons,
                                            outcomes_train=outcomes.loc[self.folds!=fold])
-        fold_scores.append(np.mean(score))
+        if metric == 'ctd_censored':
+          fold_scores.append(score[0])
+        else:
+          fold_scores.append(np.mean(score))
       hyper_param_scores.append(np.mean(fold_scores)) 
 
     if self.metric in ['ibs', 'brs']:
       best_hyper_param = self.hyperparam_grid[np.argmin(hyper_param_scores)]
-    elif self.metric in ['auc', 'ctd']:
+    elif self.metric in ['auc', 'ctd', 'ctd_censored']:
       best_hyper_param = self.hyperparam_grid[np.argmax(hyper_param_scores)]
 
     model = SurvivalModel(self.model,
                           random_seed=self.random_seed,
                           **best_hyper_param).fit(features, outcomes)
-    return model
+    return model, max(hyper_param_scores)
 
   def _get_stratified_folds(self, dataset, event_label, n_folds, random_seed):
 

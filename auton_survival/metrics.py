@@ -211,11 +211,11 @@ def survival_regression_metric(metric, outcomes, predictions,
     outcomes_train = outcomes
     warnings.warn("You are are evaluating model performance on the \
 same data used to estimate the censoring distribution.")
-
-  assert max(times) < outcomes_train.time.max(), "Times should \
-be within the range of event times to avoid exterpolation."
-  assert max(times) <= outcomes.time.max(), "Times \
-must be within the range of event times."
+  if times is not None:
+      assert max(times) < outcomes_train.time.max(), "Times should \
+    be within the range of event times to avoid exterpolation."
+      assert max(times) <= outcomes.time.max(), "Times \
+    must be within the range of event times."
 
   survival_train = util.Surv.from_dataframe('event', 'time', outcomes_train)
   survival_test = util.Surv.from_dataframe('event', 'time', outcomes)
@@ -227,7 +227,9 @@ must be within the range of event times."
   elif metric == 'auc':
     _metric = _cumulative_dynamic_auc
   elif metric == 'ctd':
-    _metric = _concordance_index_ipcw 
+    _metric = _concordance_index_ipcw
+  elif metric == 'ctd_censored':
+    _metric = _concordance_index_censored
   else:
     raise NotImplementedError()
 
@@ -276,6 +278,17 @@ def _concordance_index_ipcw(survival_train, survival_test, predictions, times, r
     vals.append(metrics.concordance_index_ipcw(survival_train, survival_test[idx],
                                                 1-predictions[idx][:,i],
                                                 tau=times[i])[0])
+  return vals
+
+def _concordance_index_censored(survival_train, survival_test, predictions, times, random_seed=None):
+
+  idx = np.arange(len(predictions))
+  if random_seed is not None:
+    np.random.seed(random_seed)
+    idx = np.random.choice(idx, len(predictions), replace=True)
+
+  vals = metrics.concordance_index_censored(np.array(list(map(bool, survival_test["event"]))), np.array(survival_test["time"]),
+                                                1 - predictions[:,0])
   return vals
 
 def phenotype_purity(phenotypes_train, outcomes_train,
