@@ -89,13 +89,13 @@ class SurvivalRegressionCV:
   """
 
   def __init__(self, model='dcph', folds=None, num_folds=5,
-               random_seed=0, hyperparam_grid={}):
+               random_seed=0, hyperparam_grid=[]):
 
     self.model = model
     self.folds = folds
     self.num_folds = num_folds
     self.random_seed = random_seed
-    self.hyperparam_grid = list(ParameterGrid(hyperparam_grid))
+    self.hyperparam_grid = hyperparam_grid
 
     assert len(self.hyperparam_grid), "Cross Validation Grid is empty."
 
